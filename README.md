@@ -1,9 +1,11 @@
 # Klogs
-Yet another kubernetes log tools. Klogs provides structured log searching for kubernetes container logs; exact and regex (golang stdlib) key value matching.
+Yet another kubernetes log tools. `klogs` provides structured log searching for kubernetes container logs; exact and regex (golang stdlib) key value matching.
 
-Klogs is a kubernetes integration wrapper around [slearch](https://github.com/vishen/go-slearch), which provides structured log searching. It does a best effort to determine what format the current log line in; you can force it to only look for a certain log format with the `-t` command line argument.
+`klogs` is a kubernetes integration wrapper around [slearch](https://github.com/vishen/go-slearch), which provides structured log searching. It does a best effort to determine what format the current log line in; you can force it to only look for a certain log format with the `-t` command line argument.
 
-Klogs will add the following key value fields to your logging line in the same log format, and each of these fields can be searched on as if they were in your log line:
+`klogs` use your default kubernetes configuration to connect to the cluster, but it can be changed using the standard kubernetes config arguments `--kubeconfig` and `--kubecontext`
+
+`klogs` will add the following key value fields to your logging line in the same log format, and each of these fields can be searched on as if they were in your log line:
 
 * `namespace=<pod_namespace>`
 * `pod_name=<pod_name>`
@@ -86,6 +88,8 @@ msg="ending" user_id="7"
 
 ## TODO
 ```
+- command line argument for key existence
+- command line argument for key not exists?
 - add resource name arguments similar to kubectl
 - add cmd arg for tailing or not
 - watch for new pods
