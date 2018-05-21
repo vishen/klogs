@@ -211,7 +211,7 @@
     "formatters",
     "slearch"
   ]
-  revision = "e3db95757d64c620c1422bb4cf65631b2713a41a"
+  revision = "ee3af64b82c7518d67e560e9328e7ba0443f6a20"
 
 [[projects]]
   branch = "master"
