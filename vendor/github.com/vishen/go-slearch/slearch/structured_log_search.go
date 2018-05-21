@@ -105,6 +105,14 @@ func StructuredLoggingSearch(config Config, in io.Reader, out io.Writer) error {
 			break
 		}
 
+		// Strip the \n from the line
+		text = text[:len(text)-1]
+
+		// if text is empty just continue
+		if len(text) == 0 {
+			continue
+		}
+
 		wg.Add(1)
 		go func(lineNumber uint64, line []byte) {
 			defer wg.Done()
@@ -122,7 +130,7 @@ func StructuredLoggingSearch(config Config, in io.Reader, out io.Writer) error {
 				lr.err = err
 			}
 			resultsChan <- lr
-		}(i, text[:len(text)-1])
+		}(i, text)
 
 	}
 
