@@ -46,7 +46,7 @@ func init() {
 	rootCmd.Flags().String("kubeconfig", "", "Path to kubernetes config")
 	rootCmd.Flags().String("kubecontext", "", "Kubernetes context to use")
 	rootCmd.Flags().StringP("namespace", "n", "", "the kubernetes namespace to filter on")
-	rootCmd.Flags().StringSliceP("selector", "l", []string{}, "kubernetes selector (label query) to filter on. eg: app=api")
+	rootCmd.Flags().StringP("selector", "l", "", "kubernetes selector (label query) to filter on. eg: app=api")
 	rootCmd.Flags().StringSliceP("containers", "c", []string{}, "kubernetes selector (label query) to filter on")
 
 	rootCmd.Flags().StringP("type", "t", "", "the log type to use: 'json' or 'text'. If unspecified it will attempt to use all log types")
@@ -54,6 +54,7 @@ func init() {
 	rootCmd.Flags().StringP("key_delimiter", "d", "", "the string to split the key on for complex key queries")
 	rootCmd.Flags().StringSliceP("match", "m", []string{}, "key and value to match on. eg: label1=value1")
 	rootCmd.Flags().StringSliceP("regexp", "r", []string{}, "key and value to regex match on. eg: label1=value*")
+	rootCmd.Flags().StringSliceP("key_exists", "e", []string{}, "print lines that have these keys")
 	rootCmd.Flags().StringSliceP("print_keys", "p", []string{}, "keys to print if a match is found")
 	rootCmd.Flags().BoolP("verbose", "v", false, "verbose output")
 }

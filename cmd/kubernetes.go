@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -26,7 +25,7 @@ func logs(cmd *cobra.Command, args []string) {
 	kubeConfig, _ := cmd.Flags().GetString("kubeconfig")
 	kubeContext, _ := cmd.Flags().GetString("kubecontext")
 	namespace, _ := cmd.Flags().GetString("namespace")
-	selectors, _ := cmd.Flags().GetStringSlice("labels")
+	selector, _ := cmd.Flags().GetString("selector")
 	containers, _ := cmd.Flags().GetStringSlice("containers")
 
 	// TODO(vishen): add resource name arguments similar to kubectl
@@ -61,11 +60,8 @@ func logs(cmd *cobra.Command, args []string) {
 		log.Fatalf("unable to create k8s client: %s\n", err)
 	}
 
-	// TODO(vishen): Test this!
-	listOptions := metav1.ListOptions{}
-	if len(selectors) > 0 {
-		// NOTE: I have no idea what this is expected to be?
-		listOptions.LabelSelector = strings.Join(selectors, ",")
+	listOptions := metav1.ListOptions{
+		LabelSelector: selector,
 	}
 
 	// Create a new watcher to monitor log streams
@@ -106,6 +102,9 @@ func logs(cmd *cobra.Command, args []string) {
 				slearch.KV{Key: "namespace", Value: podNamespace},
 				slearch.KV{Key: "container_name", Value: pc.Name},
 			}
+
+			// Add a prefix for when we aren't trying to parse the line
+			slearchConfig.Prefix = fmt.Sprintf("[%s] %s (%s) - ", podNamespace, podName, pc.Name)
 
 			// Add the container to the watcher to monitor and search the log streams
 			watcher.AddContainer(pc.Name, podName, podNamespace, client, slearchConfig)

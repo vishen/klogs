@@ -13,6 +13,7 @@ func getSlearchConfig(cmd *cobra.Command, args []string) slearch.Config {
 
 	m, _ := cmd.Flags().GetStringSlice("match")
 	r, _ := cmd.Flags().GetStringSlice("regexp")
+	e, _ := cmd.Flags().GetStringSlice("key_exists")
 	k, _ := cmd.Flags().GetStringSlice("print_keys")
 	t, _ := cmd.Flags().GetString("type")
 	s, _ := cmd.Flags().GetString("search_type")
@@ -66,6 +67,13 @@ func getSlearchConfig(cmd *cobra.Command, args []string) slearch.Config {
 		config.MatchType = slearch.MatchTypeOr
 	} else {
 		config.MatchType = slearch.MatchTypeAnd
+	}
+
+	for _, e_ := range e {
+		config.MatchOn = append(config.MatchOn, slearch.KV{
+			Key:       e_,
+			KeyExists: true,
+		})
 	}
 
 	return config

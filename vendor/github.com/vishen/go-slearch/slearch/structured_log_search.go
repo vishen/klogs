@@ -113,6 +113,11 @@ func StructuredLoggingSearch(config Config, in io.Reader, out io.Writer) error {
 			continue
 		}
 
+		if len(config.PrintKeys) == 0 && len(config.MatchOn) == 0 {
+			fmt.Fprintf(out, "%s%s\n", config.Prefix, text)
+			continue
+		}
+
 		wg.Add(1)
 		go func(lineNumber uint64, line []byte) {
 			defer wg.Done()
@@ -225,13 +230,7 @@ func SearchLine(config Config, line []byte, formatterFunc RegisterFunc) (string,
 	// are found.
 	if len(valuesToPrint) == 0 {
 		if len(config.PrintKeys) == 0 {
-			// TODO(vishen): Do something better for when we have extra values to add
-			// to the line, but we don't know the format - maybe add a new formatter method
-			// that will parse the line and combine it with the extras if possible
-			if len(config.Extras) > 0 {
-				return formatter.AppendValues(line, config.Extras), nil
-			}
-			return string(line), nil
+			return formatter.AppendValues(line, config.Extras), nil
 
 		}
 		return "", ErrNoMatchingPrintValues

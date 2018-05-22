@@ -39,4 +39,7 @@ type Config struct {
 
 	// Extra key values to print and search on
 	Extras []KV
+
+	// Prefix
+	Prefix string
 }
