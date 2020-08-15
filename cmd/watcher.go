@@ -13,7 +13,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	// Load slearch formatters: json and text
-	_ "github.com/vishen/go-slearch/formatters"
+	_ "github.com/vishen/go-slearch/formatters" // TODO: this is awful, fix.
 	"github.com/vishen/go-slearch/slearch"
 )
 
@@ -29,6 +29,8 @@ type WatcherConfig struct {
 
 	// Slearch config to use
 	slearchConfig slearch.Config
+
+	verbose bool
 }
 
 // ContainerLogsWatcheri is a watcher to monitor and control all container log streams
@@ -83,7 +85,7 @@ func (w *ContainerLogsWatcher) Start(ctx context.Context) {
 	go func() {
 		listOptions.Watch = true
 		podWatcher, err := w.client.CoreV1().Pods(w.config.namespace).Watch(listOptions)
-		if err != nil {
+		if err != nil && w.config.verbose {
 			log.Printf("unable to watch for new pods: %s", err)
 		}
 
@@ -161,14 +163,18 @@ func (w *ContainerLogsWatcher) AddPod(ctx context.Context, pod corev1.Pod) {
 		w.wg.Add(1)
 		go func(containerName string, slearchConfig slearch.Config) {
 			defer w.wg.Done()
-			log.Printf("%s, %s, %s attached\n", namespace, name, containerName)
+			if w.config.verbose {
+				log.Printf("%s, %s, %s attached\n", namespace, name, containerName)
+			}
 
 			stream, err := w.client.CoreV1().Pods(namespace).GetLogs(name, &corev1.PodLogOptions{
 				Container: containerName,
 				Follow:    w.config.tail,
 			}).Context(ctx).Stream()
 			if err != nil {
-				log.Printf("error connecting to pod '%s' container '%s': %s\n", name, containerName, err)
+				if w.config.verbose {
+					log.Printf("error connecting to pod '%s' container '%s': %s\n", name, containerName, err)
+				}
 				return
 			}
 			defer stream.Close()
@@ -198,7 +204,9 @@ func (w *ContainerLogsWatcher) AddPod(ctx context.Context, pod corev1.Pod) {
 			}
 
 			if err := slearch.StructuredLoggingSearch(slearchConfig, stream, os.Stdout); err != nil {
-				log.Printf("finished slearch with errors: %s\n", err)
+				if w.config.verbose {
+					log.Printf("finished slearch with errors: %s\n", err)
+				}
 			}
 
 		}(container.Name, slearchConfig)

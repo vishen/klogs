@@ -7,17 +7,17 @@ import (
 	"github.com/vishen/go-slearch/slearch"
 )
 
-// slearchConfig returns a slearch usable config from the conbra command
+// getSlearchConfig returns a slearch usable config from the conbra command
 // line arguments
 func getSlearchConfig(cmd *cobra.Command, args []string) slearch.Config {
 
 	m, _ := cmd.Flags().GetStringSlice("match")
 	r, _ := cmd.Flags().GetStringSlice("regexp")
-	e, _ := cmd.Flags().GetStringSlice("key_exists")
-	k, _ := cmd.Flags().GetStringSlice("print_keys")
+	e, _ := cmd.Flags().GetStringSlice("key-exists")
+	k, _ := cmd.Flags().GetStringSlice("print-keys")
 	t, _ := cmd.Flags().GetString("type")
-	s, _ := cmd.Flags().GetString("search_type")
-	d, _ := cmd.Flags().GetString("key_delimiter")
+	s, _ := cmd.Flags().GetString("search-type")
+	d, _ := cmd.Flags().GetString("key-delimiter")
 	v, _ := cmd.Flags().GetBool("verbose")
 
 	config := slearch.Config{}
@@ -61,7 +61,6 @@ func getSlearchConfig(cmd *cobra.Command, args []string) slearch.Config {
 	config.KeySplitString = d
 	config.Verbose = v
 	config.LogFormatterType = strings.ToLower(t)
-	config.Silence = true
 
 	if strings.ToLower(s) == "or" {
 		config.MatchType = slearch.MatchTypeOr

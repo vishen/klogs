@@ -24,8 +24,6 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	// Auth provider for gcp
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 var rootCmd = &cobra.Command{
@@ -33,6 +31,8 @@ var rootCmd = &cobra.Command{
 	Short: "Kubernetes earch structured logs",
 	Long:  `Read stuctured logs from Kubernetes and filter out lines based on exact or regex matches. Currently only supports JSON and text logs.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		v, _ := cmd.Flags().GetBool("verbose")
+
 		fmt.Println("Starting klogs...")
 
 		watcherConfig := WatcherConfig{slearchConfig: getSlearchConfig(cmd, args)}
@@ -41,6 +41,7 @@ var rootCmd = &cobra.Command{
 		watcherConfig.validContainerNames, _ = cmd.Flags().GetStringSlice("containers")
 		watcherConfig.tail, _ = cmd.Flags().GetBool("follow")
 		watcherConfig.validPodNames = args
+		watcherConfig.verbose = v
 
 		kubeConfig, _ := cmd.Flags().GetString("kubeconfig")
 		kubeContext, _ := cmd.Flags().GetString("kubecontext")
@@ -91,7 +92,9 @@ var rootCmd = &cobra.Command{
 					if i > 0 {
 						watcher.ForceFinish()
 					} else {
-						fmt.Println("gracefully closing all log streams")
+						if v {
+							fmt.Println("gracefully closing all log streams")
+						}
 						cancel()
 					}
 				}
@@ -120,12 +123,12 @@ func init() {
 	rootCmd.Flags().StringSliceP("containers", "c", []string{}, "kubernetes selector (label query) to filter on")
 
 	rootCmd.Flags().StringP("type", "t", "", "the log type to use: 'json' or 'text'. If unspecified it will attempt to use all log types")
-	rootCmd.Flags().StringP("search_type", "s", "and", "the search type to use: 'and' or 'or'")
-	rootCmd.Flags().StringP("key_delimiter", "d", "", "the string to split the key on for complex key queries")
+	rootCmd.Flags().StringP("search-type", "s", "and", "the search type to use: 'and' or 'or'")
+	rootCmd.Flags().StringP("key-delimiter", "d", "", "the string to split the key on for complex key queries")
 	rootCmd.Flags().StringSliceP("match", "m", []string{}, "key and value to match on. eg: label1=value1")
 	rootCmd.Flags().StringSliceP("regexp", "r", []string{}, "key and value to regex match on. eg: label1=value*")
-	rootCmd.Flags().StringSliceP("key_exists", "e", []string{}, "print lines that have these keys")
-	rootCmd.Flags().StringSliceP("print_keys", "p", []string{}, "keys to print if a match is found")
+	rootCmd.Flags().StringSliceP("key-exists", "e", []string{}, "print lines that have these keys")
+	rootCmd.Flags().StringSliceP("print-keys", "p", []string{}, "keys to print if a match is found")
 	rootCmd.Flags().BoolP("follow", "f", false, "tail the logs")
 	rootCmd.Flags().BoolP("verbose", "v", false, "verbose output")
 }
